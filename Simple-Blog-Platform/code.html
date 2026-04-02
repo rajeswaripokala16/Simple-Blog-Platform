@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Blog Platform</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #0b1220;
+      --card: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border: rgba(148, 163, 184, 0.4);
+      --shadow-strong: 0 24px 70px rgba(15, 23, 42, 0.9);
+    }
+
+    body.light {
+      --bg: #f9fafb;
+      --bg-soft: #eff6ff;
+      --card: #ffffff;
+      --accent-soft: rgba(56, 189, 248, 0.2);
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border: rgba(148, 163, 184, 0.6);
+      --shadow-strong: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, var(--bg) 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+      display: flex;
+      justify-content: center;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1080px;
+    }
+
+    /* Header / nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 20%, #a855f7, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #f9fafb;
+    }
+
+    .logo span {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-main);
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: background 0.18s ease, transform 0.08s ease,
+        box-shadow 0.16s ease;
+    }
+
+    body.light .btn {
+      background: #ffffff;
+    }
+
+    .btn.primary {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+    }
+
+    body.light .btn.primary {
+      color: #0f172a;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.5);
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(
+          135deg,
+          rgba(56, 189, 248, 0.16),
+          transparent 45%
+        ),
+        linear-gradient(315deg, rgba(129, 140, 248, 0.16), transparent 55%),
+        var(--bg-soft);
+      border-radius: 20px;
+      padding: 20px 20px 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-strong);
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.3fr);
+      gap: 18px;
+      transition: background 0.25s ease, border 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    @media (max-width: 780px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-text h1 {
+      font-size: clamp(24px, 3vw, 30px);
+      margin-bottom: 6px;
+    }
+
+    .hero-text p {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 420px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    body.light .badge {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .badge.accent {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: #e0f2fe;
+      background: var(--accent-soft);
+    }
+
+    body.light .badge.accent {
+      color: #0f172a;
+    }
+
+    .hero-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      backdrop-filter: blur(10px);
+      transition: border 0.18s ease, box-shadow 0.18s ease,
+        background 0.18s ease;
+    }
+
+    body.light .search-input {
+      background: #ffffff;
+    }
+
+    .search-input::placeholder {
+      color: #6b7280;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.7);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, border 0.18s ease,
+        transform 0.08s ease;
+    }
+
+    body.light .chip {
+      background: #ffffff;
+    }
+
+    .chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+      transform: translateY(-1px);
+    }
+
+    body.light .chip.active {
+      color: #0f172a;
+    }
+
+    /* Layout */
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.4fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Posts */
+    .posts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      padding: 14px 14px 12px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease,
+        border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(
+        circle at 0 0,
+        rgba(56, 189, 248, 0.17),
+        transparent 55%
+      );
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.9);
+      border-color: var(--accent);
+    }
+
+    body.light .card:hover {
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.25);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-category {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #a5b4fc;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-muted);
+    }
+
+    body.light .tag {
+      background: #f9fafb;
+    }
+
+    .card-excerpt {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-height: 3.3em;
+      overflow: hidden;
+    }
+
+    .read-more {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #93c5fd;
+      text-decoration: underline;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 14px 16px 12px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 460px;
+      transition: background 0.25s ease, border 0.25s ease;
+    }
+
+    body.light .sidebar {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .sidebar h3 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-list {
+      list-style: none;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-list li {
+      cursor: pointer;
+      padding: 4px 0;
+      border-radius: 6px;
+      transition: color 0.14s ease;
+    }
+
+    .sidebar-list li:hover {
+      color: #bfdbfe;
+    }
+
+    body.light .sidebar-list li:hover {
+      color: #1d4ed8;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    body.light .pill {
+      background: #f9fafb;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      width: min(640px, 92vw);
+      max-height: 72vh;
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid rgba(56, 189, 248, 0.7);
+      padding: 16px 18px 14px;
+      overflow-y: auto;
+      box-shadow: 0 26px 80px rgba(15, 23, 42, 1);
+    }
+
+    body.light .modal {
+      background: #ffffff;
+      box-shadow: 0 22px 70px rgba(15, 23, 42, 0.26);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+    }
+
+    .modal-close {
+      border: none;
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+      font-size: 18px;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    body.light .modal-close {
+      background: #e5e7eb;
+    }
+
+    .modal-body {
+      font-size: 13px;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-top: 4px;
+      white-space: pre-line;
+    }
+
+    .modal-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .modal-tags {
+      margin-bottom: 6px;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 999px;
+    }
+
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 42px;
+      height: 42px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      color: #e0f2fe;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 20;
+    }
+
+    .back-to-top.show {
+      display: flex;
+    }
+
+    .back-to-top:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--accent);
+      color: #e0f2fe;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 40;
+      animation: slideIn 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .sort-controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .sort-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.7);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .sort-chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 4px 6px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: transparent;
+      color: #93c5fd;
+      font-size: 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .action-btn.liked {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .action-btn.bookmarked {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #f59e0b;
+      color: #fcd34d;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .modal-action-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+      font-size: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .modal-action-btn:hover {
+      background: rgba(56, 189, 248, 0.3);
+    }
+
+    .modal-action-btn.liked {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .modal-action-btn.bookmarked {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #f59e0b;
+      color: #fcd34d;
+    }
+
+    .modal-comments {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .comments-list {
+      margin-bottom: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .comment {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+    }
+
+    .comment:last-child {
+      border-bottom: none;
+    }
+
+    .comment-author {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .comment-date {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .comment-text {
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      resize: vertical;
+      min-height: 36px;
+    }
+
+    body.light .comment-input {
+      background: #ffffff;
+    }
+
+    .comment-input:focus {
+      border-color: var(--accent);
+    }
+
+    .comment-submit {
+      padding: 8px 12px;
+      border: 1px solid var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .comment-submit:hover {
+      background: rgba(56, 189, 248, 0.3);
+    }
+
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.2s ease;
+      z-index: 10;
+    }
+
+    .modal-backdrop.loading .modal {
+      opacity: 0.5;
+    }
+
+    .modal-backdrop.loading::before {
+      content: "";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px 0 0 -20px;
+      border: 3px solid rgba(56, 189, 248, 0.3);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 40;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .stats-widget {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .stat-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .stat-value {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .new-post-modal {
+      width: min(500px, 92vw);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: border 0.18s ease;
+    }
+
+    body.light .form-input,
+    body.light .form-textarea,
+    body.light .form-select {
+      background: #ffffff;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .modal-btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-main);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .modal-btn.primary {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #e0f2fe;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .tag-input-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      min-height: 38px;
+    }
+
+    body.light .tag-input-container {
+      background: #ffffff;
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      font-size: 11px;
+      color: #e0f2fe;
+    }
+
+    .tag-badge-remove {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tag-input {
+      flex: 1;
+      min-width: 60px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.4);
+      z-index: 50;
+      min-width: 180px;
+      overflow: hidden;
+    }
+
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: var(--accent-soft);
+      color: #e0f2fe;
+    }
+
+    .nav {
+      position: relative;
+    }
+
+    .modal-action-btn.download-format {
+      font-size: 11px;
+      padding: 4px 6px;
+    }
+
+    .download-formats {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .format-badge {
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: transparent;
+      color: #93c5fd;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .format-badge:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Top nav -->
+    <header class="nav">
+      <div class="logo">
+        <div class="logo-mark">B</div>
+        <div>
+          Simple Blog
+          <span>Frontend only</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn" id="downloadMenuBtn">⬇ Export</button>
+        <button class="btn" id="themeToggle">☾ Theme</button>
+        <button class="btn primary" id="newPostBtn">+ New post</button>
+      </div>
+      <div class="dropdown-menu" id="downloadMenu" style="display: none;">
+        <button class="dropdown-item" id="downloadAllTxtBtn">📄 Download All (TXT)</button>
+        <button class="dropdown-item" id="downloadAllJsonBtn">📊 Download All (JSON)</button>
+        <button class="dropdown-item" id="downloadAllCsvBtn">📈 Download All (CSV)</button>
+      </div>
+    </header>
+
+    <!-- Hero / controls -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Share ideas with a minimal blog interface.</h1>
+        <p>
+          Filter posts by category, search across content, and open any article
+          in a clean modal view. All built using plain HTML, CSS, and JavaScript.
+        </p>
+        <div class="hero-badges">
+          <span class="badge accent">Vanilla Frontend</span>
+          <span class="badge">Responsive grid layout</span>
+          <span class="badge">Search & filters</span>
+        </div>
+      </div>
+      <div class="hero-controls">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search posts by title, tag, or content..."
+        />
+        <div class="filters" id="categoryFilters">
+          <button class="chip active" data-category="all">All</button>
+          <button class="chip" data-category="frontend">Frontend</button>
+          <button class="chip" data-category="javascript">JavaScript</button>
+          <button class="chip" data-category="life">Life & Career</button>
+          <button class="chip" data-category="bookmarked">Bookmarked</button>
+        </div>
+        <div class="sort-controls" id="sortControls">
+          <button class="sort-chip active" data-sort="newest">Newest</button>
+          <button class="sort-chip" data-sort="oldest">Oldest</button>
+          <button class="sort-chip" data-sort="popular">Popular</button>
+          <button class="sort-chip" data-sort="alphabetical">A-Z</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main layout -->
+    <main class="layout">
+      <!-- Posts list -->
+      <section class="posts" id="postsContainer"></section>
+      <!-- Pagination -->
+      <div id="paginationContainer" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;"></div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div>
+          <h3>Stats</h3>
+          <div class="stats-widget">
+            <div class="stat-row">
+              <span>Total posts:</span>
+              <span class="stat-value" id="totalPostsStat">0</span>
+            </div>
+            <div class="stat-row">
+              <span>Total likes:</span>
+              <span class="stat-value" id="totalLikesStat">0</span>
+            </div>
+            <div class="stat-row">
+              <span>Total tags:</span>
+              <span class="stat-value" id="totalTagsStat">0</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Popular tags</h3>
+          <div id="tagsContainer"></div>
+        </div>
+        <div>
+          <h3>Recently published</h3>
+          <ul class="sidebar-list" id="recentList"></ul>
+        </div>
+        <div>
+          <h3>Tips</h3>
+          <ul class="sidebar-list">
+            <li>Click a card or "Read more" to open the full post.</li>
+            <li>Use the search bar to filter posts by keyword.</li>
+            <li>Change category using the chips in the hero.</li>
+            <li>Like posts to see your favorite count.</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Modal for full post -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="progress-bar" id="progressBar"></div>
+      <div class="modal-header">
+        <h2 id="modalTitle"></h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-comments" id="modalComments"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <!-- Modal for new post -->
+  <div class="modal-backdrop" id="newPostModalBackdrop">
+    <div class="modal new-post-modal">
+      <div class="modal-header">
+        <h2>Create New Post</h2>
+        <button class="modal-close" id="newPostModalClose">&times;</button>
+      </div>
+      <div id="newPostForm">
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input type="text" id="postTitle" class="form-input" placeholder="Enter post title" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select id="postCategory" class="form-select" required>
+            <option value="">Select a category</option>
+            <option value="frontend">Frontend</option>
+            <option value="javascript">JavaScript</option>
+            <option value="life">Life & Career</option>
+            <option value="design">Design</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Author *</label>
+          <input type="text" id="postAuthor" class="form-input" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Excerpt *</label>
+          <textarea id="postExcerpt" class="form-textarea" placeholder="Brief summary of your post" required></textarea>
+          <div class="form-hint">Keep it under 150 characters</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content *</label>
+          <textarea id="postContent" class="form-textarea" placeholder="Full post content" required></textarea>
+          <div class="form-hint">Use line breaks for paragraphs</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <div class="tag-input-container" id="tagInputContainer">
+            <input type="text" id="tagInput" class="tag-input" placeholder="Type tag and press Enter">
+          </div>
+          <div class="form-hint">Press Enter to add tags</div>
+        </div>
+        <div class="modal-btn-group">
+          <button class="modal-btn" id="cancelPostBtn">Cancel</button>
+          <button class="modal-btn primary" id="submitPostBtn">Create Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="back-to-top" id="backToTop" title="Back to top">↑</button>
+
+    
+
+  <script>
+let posts = [
+  {
+    id: 1,
+    title: "Designing a clean blog layout with only CSS",
+    category: "frontend",
+    author: "Raji Pokala",
+    date: "Nov 28, 2025",
+    tags: ["HTML", "CSS", "UI"],
+    excerpt: "Learn how to structure a simple blog layout using semantic HTML elements and modern CSS utilities like grid and flexbox.",
+    content: "In this post we walk through building a minimal blog layout using pure HTML and CSS.\n\nWe start by defining the main layout areas: header, hero, posts list, and sidebar. Then we use CSS Grid to create a responsive two-column layout that collapses on smaller screens.\n\nKey techniques:\n- CSS Grid for the overall layout\n- Flexbox for navigation and small components\n- Reusable CSS variables for colors and spacing\n\nThis small project is perfect for practicing front-end fundamentals without any frameworks.",
+    likes: 0
+  },
+  {
+    id: 2,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+  {
+    id: 3,
+    title: "Writing technical blog posts that people actually read",
+    category: "life",
+    author: "Raji Pokala",
+    date: "Nov 12, 2025",
+    tags: ["Writing", "Career"],
+    excerpt: "Good technical writing is about empathy, not showing off. Start from the reader's current mental model and build from there.",
+    content: "A technical blog is one of the best ways to document your learning and build a portfolio.\n\nTo make posts engaging:\n- Start with a concrete problem\n- Use small code examples and explain why, not only how\n- Add visuals or diagrams when a concept feels abstract\n- End with a short summary and links to further reading\n\nConsistency matters more than perfection. Publish small notes while learning.",
+    likes: 0
+  },
+  {
+    id: 4,
+    title: "Creating a dark mode friendly color system",
+    category: "frontend",
+    author: "UI Lab",
+    date: "Oct 30, 2025",
+    tags: ["Design", "Colors"],
+    excerpt: "Building a color palette that works in dark mode helps your projects look professional and cohesive.",
+    content: "Dark mode UIs are everywhere, but they require careful color choices.\n\nUse these ideas:\n- Prefer desaturated colors for backgrounds\n- Use one bright accent color for focus states and primary actions\n- Keep text contrast high enough for readability\n\nCSS variables make it easy to toggle entire palettes with a single class on the body.",
+    likes: 0
+  },
+
+  {
+    id: 5,
+    title: "Creating a dark mode friendly color system",
+    category: "frontend",
+    author: "UI Lab",
+    date: "Oct 30, 2025",
+    tags: ["Design", "Colors"],
+    excerpt: "Building a color palette that works in dark mode helps your projects look professional and cohesive.",
+    content: "Dark mode UIs are everywhere, but they require careful color choices.\n\nUse these ideas:\n- Prefer desaturated colors for backgrounds\n- Use one bright accent color for focus states and primary actions\n- Keep text contrast high enough for readability\n\nCSS variables make it easy to toggle entire palettes with a single class on the body.",
+    likes: 0
+  },
+
+  {
+    id: 6,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 7,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 8,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 9,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 10,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 11,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 12,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 13,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 14,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 15,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 16,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 17,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 18,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 19,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  },
+
+  {
+    id: 20,
+    title: "JavaScript tricks for beginner-friendly UIs",
+    category: "javascript",
+    author: "Dev Guest",
+    date: "Nov 20, 2025",
+    tags: ["JavaScript", "UX"],
+    excerpt: "Small amounts of vanilla JavaScript can make a static site feel interactive without adding heavy frameworks.",
+    content: "You do not always need a big framework to build a delightful user interface.\n\nThis article shows how a few lines of vanilla JavaScript can power search, filters, and modals on a static blog.\n\nWe cover:\n- Adding click handlers to cards\n- Filtering an in‑memory array of posts\n- Updating the DOM based on state\n\nThese are the foundations you can later reuse in any front-end framework.",
+    likes: 0
+  }
+
+
+
+];
+
+const postsContainer = document.getElementById("postsContainer");
+const tagsContainer = document.getElementById("tagsContainer");
+const recentList = document.getElementById("recentList");
+const searchInput = document.getElementById("searchInput");
+const filtersBar = document.getElementById("categoryFilters");
+const sortControls = document.getElementById("sortControls");
+
+const modalBackdrop = document.getElementById("modalBackdrop");
+const modalTitle = document.getElementById("modalTitle");
+const modalMeta = document.getElementById("modalMeta");
+const modalTags = document.getElementById("modalTags");
+const modalBody = document.getElementById("modalBody");
+const modalActions = document.getElementById("modalActions");
+const modalClose = document.getElementById("modalClose");
+
+const newPostBtn = document.getElementById("newPostBtn");
+const newPostModalBackdrop = document.getElementById("newPostModalBackdrop");
+const newPostModalClose = document.getElementById("newPostModalClose");
+const cancelPostBtn = document.getElementById("cancelPostBtn");
+const submitPostBtn = document.getElementById("submitPostBtn");
+
+const themeToggle = document.getElementById("themeToggle");
+const backToTop = document.getElementById("backToTop");
+
+let activeCategory = "all";
+let searchTerm = "";
+let activeSort = "newest";
+let likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || [];
+let currentModalPostId = null;
+const newPostTags = [];
+let currentPage = 1;
+const postsPerPage = 10;
+let bookmarkedPosts = JSON.parse(localStorage.getItem("bookmarkedPosts")) || [];
+let comments = JSON.parse(localStorage.getItem("comments")) || {};
+
+function saveToLocalStorage() {
+  localStorage.setItem("posts", JSON.stringify(posts));
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem("posts");
+  if (saved) {
+    const savedPosts = JSON.parse(saved);
+    posts = savedPosts;
+  }
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function sortPosts(postsToSort) {
+  const sorted = [...postsToSort];
+  const dateToNum = (dateStr) => new Date(dateStr).getTime();
+
+  switch (activeSort) {
+    case "oldest":
+      return sorted.sort((a, b) => dateToNum(a.date) - dateToNum(b.date));
+    case "popular":
+      return sorted.sort((a, b) => b.likes - a.likes);
+    case "alphabetical":
+      return sorted.sort((a, b) => a.title.localeCompare(b.title));
+    case "newest":
+    default:
+      return sorted.sort((a, b) => dateToNum(b.date) - dateToNum(a.date));
+  }
+}
+
+function renderPosts() {
+  postsContainer.innerHTML = "";
+
+  const filtered = posts.filter((post) => {
+    const matchesCategory = activeCategory === "all" || activeCategory === "bookmarked" || post.category === activeCategory;
+    const lowered = searchTerm.toLowerCase();
+    const matchesSearch = !lowered || post.title.toLowerCase().includes(lowered) || post.excerpt.toLowerCase().includes(lowered) || post.tags.some((t) => t.toLowerCase().includes(lowered));
+    const matchesBookmarked = activeCategory !== "bookmarked" || bookmarkedPosts.includes(post.id);
+    return matchesCategory && matchesSearch && matchesBookmarked;
+  });
+
+  const sorted = sortPosts(filtered);
+
+  if (sorted.length === 0) {
+    postsContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No posts found. Try a different search or category.</p></div>';
+    renderPagination(0);
+    return;
+  }
+
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const paginatedPosts = sorted.slice(startIndex, endIndex);
+
+  paginatedPosts.forEach((post) => {
+    const isLiked = likedPosts.includes(post.id);
+    const isBookmarked = bookmarkedPosts.includes(post.id);
+    const card = document.createElement("article");
+    card.className = "card";
+    card.dataset.id = post.id;
+
+    card.innerHTML = `
+      <div class="card-category">${post.category}</div>
+      <h2 class="card-title">${post.title}</h2>
+      <div class="card-meta">
+        <span>${post.author}</span>
+        <span>•</span>
+        <span>${post.date}</span>
+      </div>
+      <div class="card-tags">
+        ${post.tags.map((t) => `<span class="tag">#${t}</span>`).join("")}
+      </div>
+      <p class="card-excerpt">${post.excerpt}</p>
+      <div class="card-actions">
+        <button class="action-btn read-more" data-id="${post.id}" type="button" title="Read full post">
+          📖 Read
+        </button>
+        <button class="action-btn like-btn ${isLiked ? "liked" : ""}" data-id="${post.id}" type="button" title="Like this post">
+          ${isLiked ? "❤" : "🤍"} ${post.likes}
+        </button>
+        <button class="action-btn bookmark-btn ${isBookmarked ? "bookmarked" : ""}" data-id="${post.id}" type="button" title="Bookmark this post">
+          ${isBookmarked ? "🔖" : "📖"}
+        </button>
+      </div>
+    `;
+
+    card.querySelector(".read-more").addEventListener("click", () => openPostModal(post.id));
+    card.querySelector(".like-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleLike(post.id);
+    });
+    card.querySelector(".bookmark-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleBookmark(post.id);
+    });
+
+    postsContainer.appendChild(card);
+  });
+
+  renderPagination(sorted.length);
+}
+
+function toggleLike(postId) {
+  const index = likedPosts.indexOf(postId);
+  if (index > -1) {
+    likedPosts.splice(index, 1);
+  } else {
+    likedPosts.push(postId);
+  }
+  localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
+  const post = posts.find(p => p.id === postId);
+  if (post) {
+    post.likes = likedPosts.filter(id => posts.find(p => p.id === id)).length;
+  }
+  renderPosts();
+  updateStats();
+  if (currentModalPostId === postId) {
+    openPostModal(postId);
+  }
+}
+
+function toggleBookmark(postId) {
+  const index = bookmarkedPosts.indexOf(postId);
+  if (index > -1) {
+    bookmarkedPosts.splice(index, 1);
+  } else {
+    bookmarkedPosts.push(postId);
+  }
+  localStorage.setItem("bookmarkedPosts", JSON.stringify(bookmarkedPosts));
+  renderPosts();
+  if (currentModalPostId === postId) {
+    openPostModal(postId);
+  }
+}
+
+function renderPagination(totalPosts) {
+  const paginationContainer = document.getElementById("paginationContainer");
+  if (!paginationContainer) return;
+
+  paginationContainer.innerHTML = "";
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "btn";
+  prevBtn.textContent = "← Prev";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPosts();
+    }
+  });
+  paginationContainer.appendChild(prevBtn);
+
+  for (let i = 1; i <= totalPages; i++) {
+    const pageBtn = document.createElement("button");
+    pageBtn.className = `btn ${i === currentPage ? "primary" : ""}`;
+    pageBtn.textContent = i;
+    pageBtn.addEventListener("click", () => {
+      currentPage = i;
+      renderPosts();
+    });
+    paginationContainer.appendChild(pageBtn);
+  }
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "btn";
+  nextBtn.textContent = "Next →";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderPosts();
+    }
+  });
+  paginationContainer.appendChild(nextBtn);
+}
+
+function renderTags() {
+  tagsContainer.innerHTML = "";
+  const tagCounts = {};
+
+  posts.forEach((p) => {
+    p.tags.forEach((t) => {
+      tagCounts[t] = (tagCounts[t] || 0) + 1;
+    });
+  });
+
+  Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .forEach(([tag, count]) => {
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "pill";
+      pill.textContent = `#${tag} (${count})`;
+      pill.addEventListener("click", () => {
+        searchInput.value = tag;
+        searchTerm = tag;
+        renderPosts();
+      });
+      tagsContainer.appendChild(pill);
+    });
+}
+
+function renderRecent() {
+  recentList.innerHTML = "";
+  const recent = sortPosts(posts).slice(0, 4);
+  recent.forEach((post) => {
+    const li = document.createElement("li");
+    li.textContent = post.title;
+    li.addEventListener("click", () => openPostModal(post.id));
+    recentList.appendChild(li);
+  });
+}
+
+function updateStats() {
+  document.getElementById("totalPostsStat").textContent = posts.length;
+  document.getElementById("totalLikesStat").textContent = posts.reduce((sum, p) => sum + p.likes, 0);
+  const uniqueTags = new Set();
+  posts.forEach(p => p.tags.forEach(t => uniqueTags.add(t)));
+  document.getElementById("totalTagsStat").textContent = uniqueTags.size;
+}
+
+function openPostModal(id) {
+  const post = posts.find((p) => p.id === id);
+  if (!post) return;
+
+  currentModalPostId = id;
+  const isLiked = likedPosts.includes(id);
+
+  modalTitle.textContent = post.title;
+  modalMeta.textContent = `${post.author} • ${post.date} • ${post.category}`;
+  modalTags.innerHTML = post.tags.map((t) => `<span class="tag">#${t}</span>`).join("");
+  modalBody.textContent = post.content;
+  
+  modalActions.innerHTML = `
+    <button class="modal-action-btn like-btn ${isLiked ? "liked" : ""}" data-id="${post.id}">
+      ${isLiked ? "❤ Unlike" : "🤍 Like"} (${post.likes})
+    </button>
+    <button class="modal-action-btn bookmark-btn ${isBookmarked ? "bookmarked" : ""}" data-id="${post.id}">
+      ${isBookmarked ? "🔖 Unbookmark" : "📖 Bookmark"}
+    </button>
+    <button class="modal-action-btn" onclick="window.print()">🖨 Print</button>
+    <button class="modal-action-btn" id="downloadBtn" data-id="${post.id}">⬇ Download</button>
+    <button class="modal-action-btn" onclick="sharePost('${post.title}')">🔗 Share</button>
+  `;
+
+  modalActions.querySelector(".like-btn").addEventListener("click", () => {
+    toggleLike(post.id);
+  });
+
+  modalActions.querySelector(".bookmark-btn").addEventListener("click", () => {
+    toggleBookmark(post.id);
+  });
+
+  modalActions.querySelector("#downloadBtn").addEventListener("click", () => {
+    downloadPost(post.id);
+  });
+
+  renderComments(post.id);
+
+  modalBackdrop.classList.add("active", "loading");
+  setTimeout(() => modalBackdrop.classList.remove("loading"), 500);
+}
+
+function closePostModal() {
+  modalBackdrop.classList.remove("active");
+  currentModalPostId = null;
+}
+
+function sharePost(title) {
+  const text = `Check out this post: "${title}" on Simple Blog Platform`;
+  if (navigator.share) {
+    navigator.share({ title: "Simple Blog", text: text });
+  } else {
+    showToast("Link copied to clipboard!");
+  }
+}
+
+function downloadPost(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const content = `Title: ${post.title}
+Author: ${post.author}
+Date: ${post.date}
+Category: ${post.category}
+Tags: ${post.tags.join(", ")}
+Likes: ${post.likes}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${post.content}`;
+
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${post.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast("📥 Post downloaded!");
+}
+
+function downloadAsMarkdown(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const content = `# ${post.title}
+
+**Author:** ${post.author}  
+**Date:** ${post.date}  
+**Category:** ${post.category}  
+**Tags:** ${post.tags.map(t => `\`${t}\``).join(", ")}  
+**Likes:** ❤️ ${post.likes}
+
+---
+
+${post.content.replace(/\n\n/g, "\n\n")}`;
+
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${post.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.md`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast("📥 Post downloaded as Markdown!");
+}
+
+function downloadAllPosts() {
+  if (posts.length === 0) {
+    showToast("No posts to download");
+    return;
+  }
+
+  const content = posts.map(post => `
+═══════════════════════════════════════════════
+Title: ${post.title}
+Author: ${post.author}
+Date: ${post.date}
+Category: ${post.category}
+Tags: ${post.tags.join(", ")}
+Likes: ${post.likes}
+═══════════════════════════════════════════════
+
+${post.content}
+
+`).join("\n");
+
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `blog_posts_${new Date().toISOString().split("T")[0]}.txt`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast(`📥 Downloaded ${posts.length} posts!`);
+}
+
+function downloadAllAsJSON() {
+  if (posts.length === 0) {
+    showToast("No posts to download");
+    return;
+  }
+
+  const data = {
+    exported: new Date().toISOString(),
+    totalPosts: posts.length,
+    posts: posts
+  };
+
+  const content = JSON.stringify(data, null, 2);
+  const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `blog_posts_${new Date().toISOString().split("T")[0]}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast(`📥 Downloaded ${posts.length} posts as JSON!`);
+}
+
+function downloadAllAsCSV() {
+  if (posts.length === 0) {
+    showToast("No posts to download");
+    return;
+  }
+
+  const headers = ["ID", "Title", "Author", "Date", "Category", "Tags", "Likes", "Excerpt"];
+  const rows = posts.map(post => [
+    post.id,
+    `"${post.title.replace(/"/g, '""')}"`,
+    `"${post.author.replace(/"/g, '""')}"`,
+    post.date,
+    post.category,
+    `"${post.tags.join(", ")}"`,
+    post.likes,
+    `"${post.excerpt.replace(/"/g, '""').substring(0, 100)}..."`
+  ]);
+
+  const csvContent = [
+    headers.join(","),
+    ...rows.map(row => row.join(","))
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `blog_posts_${new Date().toISOString().split("T")[0]}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast(`📥 Downloaded ${posts.length} posts as CSV!`);
+}
+
+function openNewPostModal() {
+  newPostModalBackdrop.classList.add("active");
+}
+
+function closeNewPostModal() {
+  newPostModalBackdrop.classList.remove("active");
+  resetPostForm();
+}
+
+function resetPostForm() {
+  document.getElementById("postTitle").value = "";
+  document.getElementById("postCategory").value = "";
+  document.getElementById("postAuthor").value = "";
+  document.getElementById("postExcerpt").value = "";
+  document.getElementById("postContent").value = "";
+  document.getElementById("tagInput").value = "";
+  newPostTags.length = 0;
+  renderTagInput();
+}
+
+function renderTagInput() {
+  const container = document.getElementById("tagInputContainer");
+  const tagsHtml = newPostTags.map((tag, idx) => `<span class="tag-badge">${tag}<span class="tag-badge-remove" data-idx="${idx}">×</span></span>`).join("");
+  const input = `<input type="text" id="tagInput" class="tag-input" placeholder="Type tag and press Enter">`;
+  container.innerHTML = tagsHtml + input;
+  
+  container.querySelectorAll(".tag-badge-remove").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      newPostTags.splice(idx, 1);
+      renderTagInput();
+    });
+  });
+
+  const tagInput = container.querySelector("#tagInput");
+  tagInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const tag = tagInput.value.trim();
+      if (tag && !newPostTags.includes(tag)) {
+        newPostTags.push(tag);
+        renderTagInput();
+        showToast(`Added tag: ${tag}`);
+      }
+    }
+  });
+}
+
+function validatePostForm() {
+  const title = document.getElementById("postTitle").value.trim();
+  const category = document.getElementById("postCategory").value;
+  const author = document.getElementById("postAuthor").value.trim();
+  const excerpt = document.getElementById("postExcerpt").value.trim();
+  const content = document.getElementById("postContent").value.trim();
+
+  if (!title || !category || !author || !excerpt || !content) {
+    showToast("Please fill in all required fields");
+    return false;
+  }
+  if (excerpt.length > 150) {
+    showToast("Excerpt should be under 150 characters");
+    return false;
+  }
+  return true;
+}
+
+function submitPost() {
+  if (!validatePostForm()) return;
+
+  const newPost = {
+    id: Math.max(...posts.map(p => p.id), 0) + 1,
+    title: document.getElementById("postTitle").value.trim(),
+    category: document.getElementById("postCategory").value,
+    author: document.getElementById("postAuthor").value.trim(),
+    date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+    tags: newPostTags.length > 0 ? [...newPostTags] : ["New"],
+    excerpt: document.getElementById("postExcerpt").value.trim(),
+    content: document.getElementById("postContent").value.trim(),
+    likes: 0
+  };
+
+  posts.unshift(newPost);
+  saveToLocalStorage();
+  showToast("🎉 Post created successfully!");
+  closeNewPostModal();
+  renderPosts();
+  renderTags();
+  renderRecent();
+  updateStats();
+}
+
+modalClose.addEventListener("click", closePostModal);
+modalBackdrop.addEventListener("click", (e) => {
+  if (e.target === modalBackdrop) closePostModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (newPostModalBackdrop.classList.contains("active")) {
+      closeNewPostModal();
+    } else {
+      closePostModal();
+    }
+  }
+});
+
+searchInput.addEventListener("input", (e) => {
+  searchTerm = e.target.value.trim();
+  renderPosts();
+});
+
+filtersBar.addEventListener("click", (e) => {
+  const btn = e.target.closest(".chip");
+  if (!btn) return;
+  activeCategory = btn.dataset.category || "all";
+  filtersBar.querySelectorAll(".chip").forEach((chip) => {
+    chip.classList.toggle("active", chip === btn);
+  });
+  renderPosts();
+});
+
+sortControls.addEventListener("click", (e) => {
+  const btn = e.target.closest(".sort-chip");
+  if (!btn) return;
+  activeSort = btn.dataset.sort || "newest";
+  sortControls.querySelectorAll(".sort-chip").forEach((chip) => {
+    chip.classList.toggle("active", chip === btn);
+  });
+  renderPosts();
+});
+
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.body.classList.add("light");
+  } else {
+    document.body.classList.remove("light");
+  }
+}
+
+function updateThemeButton(theme) {
+  if (!themeToggle) return;
+  themeToggle.textContent = theme === "light" ? "☀ Light" : "☾ Dark";
+}
+
+function initTheme() {
+  const stored = localStorage.getItem("blog-theme");
+  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  const theme = stored || (prefersLight ? "light" : "dark");
+  applyTheme(theme);
+  updateThemeButton(theme);
+}
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const current = document.body.classList.contains("light") ? "light" : "dark";
+    const next = current === "light" ? "dark" : "light";
+    applyTheme(next);
+    updateThemeButton(next);
+    localStorage.setItem("blog-theme", next);
+  });
+}
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    backToTop.classList.add("show");
+  } else {
+    backToTop.classList.remove("show");
+  }
+});
+
+backToTop.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+newPostBtn.addEventListener("click", openNewPostModal);
+newPostModalClose.addEventListener("click", closeNewPostModal);
+cancelPostBtn.addEventListener("click", closeNewPostModal);
+submitPostBtn.addEventListener("click", submitPost);
+
+const downloadMenuBtn = document.getElementById("downloadMenuBtn");
+const downloadMenu = document.getElementById("downloadMenu");
+const downloadAllTxtBtn = document.getElementById("downloadAllTxtBtn");
+const downloadAllJsonBtn = document.getElementById("downloadAllJsonBtn");
+const downloadAllCsvBtn = document.getElementById("downloadAllCsvBtn");
+
+downloadMenuBtn.addEventListener("click", () => {
+  downloadMenu.style.display = downloadMenu.style.display === "none" ? "block" : "none";
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".nav-actions") && downloadMenu.style.display === "block") {
+    downloadMenu.style.display = "none";
+  }
+});
+
+downloadAllTxtBtn.addEventListener("click", () => {
+  downloadAllPosts();
+  downloadMenu.style.display = "none";
+});
+
+downloadAllJsonBtn.addEventListener("click", () => {
+  downloadAllAsJSON();
+  downloadMenu.style.display = "none";
+});
+
+downloadAllCsvBtn.addEventListener("click", () => {
+  downloadAllAsCSV();
+  downloadMenu.style.display = "none";
+});
+
+loadFromLocalStorage();
+renderPosts();
+renderTags();
+renderRecent();
+initTheme();
+updateStats();
+renderTagInput();
+  </script>
+   
+
+
+
+   
+
+    
+  </body>
+</html>
